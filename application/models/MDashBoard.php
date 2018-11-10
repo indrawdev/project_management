@@ -9,53 +9,76 @@ class MDashBoard extends CI_Model {
 		$this->load->database();
 	}
 
-	public function getDaily() 
+	public function getDone() 
 	{
 		$xSQL = ("
-			SELECT fd_tanggal_bayar, SUM(fn_total_bayar) as fn_total_bayar
-			FROM tx_pembayaran
-			WHERE MONTH(fd_tanggal_bayar) = MONTH(CURRENT_DATE())
+			SELECT DISTINCT MONTHNAME(fd_tanggal_deadline) as bulan, 
+			COUNT(fs_nomor) as jumlah
+			FROM tx_request
+			WHERE YEAR(fd_tanggal_deadline) = YEAR(CURRENT_DATE())
+			AND fs_kode_status = 'D'
 		");
 
 		$xSQL = $xSQL.("
-			GROUP BY fd_tanggal_bayar
+			GROUP BY MONTH(fd_tanggal_deadline)
 		");
 
 		$sSQL = $this->db->query($xSQL);
 		return $sSQL;
 	}
 
-	public function getMonthly() 
+	public function getProgress() 
 	{
 		$xSQL = ("
-			SELECT fd_tanggal_bayar, SUM(fn_total_bayar) as fn_total_bayar
-			FROM tx_pembayaran
-			WHERE YEAR(fd_tanggal_bayar) = YEAR(CURRENT_DATE())
+			SELECT DISTINCT MONTHNAME(fd_tanggal_deadline) as bulan, 
+			COUNT(fs_nomor) as jumlah
+			FROM tx_request
+			WHERE YEAR(fd_tanggal_deadline) = YEAR(CURRENT_DATE())
+			AND fs_kode_status = 'P'
 		");
 
 		$xSQL = $xSQL.("
-			GROUP BY MONTH(fd_tanggal_bayar)
+			GROUP BY MONTH(fd_tanggal_deadline)
 		");
 
 		$sSQL = $this->db->query($xSQL);
 		return $sSQL;
 	}
 
-	public function getPercent() 
+	public function getProblem() 
 	{
 		$xSQL = ("
-			SELECT COUNT(fs_untuk_bayar) as fn_jumlah, CASE fs_untuk_bayar
-				WHEN 'd' THEN 'DEPOSIT'
-				WHEN 'o' THEN 'OBAT'
-				WHEN 'p' THEN 'PERAWATAN' END as fs_untuk_bayar
-			FROM tx_pembayaran
+			SELECT DISTINCT MONTHNAME(fd_tanggal_deadline) as bulan, 
+			COUNT(fs_nomor) as jumlah
+			FROM tx_request
+			WHERE YEAR(fd_tanggal_deadline) = YEAR(CURRENT_DATE())
+			AND fs_kode_status = 'W'
 		");
 
 		$xSQL = $xSQL.("
-			GROUP BY fs_untuk_bayar
+			GROUP BY MONTH(fd_tanggal_deadline)
 		");
 
 		$sSQL = $this->db->query($xSQL);
 		return $sSQL;
 	}
+
+	public function getFailed() 
+	{
+		$xSQL = ("
+			SELECT DISTINCT MONTHNAME(fd_tanggal_deadline) as bulan, 
+			COUNT(fs_nomor) as jumlah
+			FROM tx_request
+			WHERE YEAR(fd_tanggal_deadline) = YEAR(CURRENT_DATE())
+			AND fs_kode_status = 'F'
+		");
+
+		$xSQL = $xSQL.("
+			GROUP BY MONTH(fd_tanggal_deadline)
+		");
+
+		$sSQL = $this->db->query($xSQL);
+		return $sSQL;
+	}
+
 }

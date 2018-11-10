@@ -104,7 +104,7 @@ class Login extends CI_Controller {
 
 					// START LOGGING
 					$this->load->model('MLog');
-					$this->MLog->logger('LOGIN', $username, 'MASUK KE SISTEM DENTIST');
+					$this->MLog->logger('LOGIN', $username, 'MASUK KE SISTEM PROJECTS');
 					// END LOGGING
 
 					$json = array('success' => true);
@@ -123,7 +123,7 @@ class Login extends CI_Controller {
 		
 		// START LOGGING
 		$this->load->model('MLog');
-		$this->MLog->logger('LOGOUT', $user, 'KELUAR DARI SISTEM DENTIST');
+		$this->MLog->logger('LOGOUT', $user, 'KELUAR DARI SISTEM PROJECTS');
 		// END LOGGING
 
 		$this->session->sess_destroy();

@@ -19,15 +19,6 @@ Ext.onReady(function() {
 	var vLevel = '';
 	var required = '<span style="color:red;font-weight:bold" data-qtip="Required">*</span>';
 
-	Ext.define('DataGridKaryawan', {
-		extend: 'Ext.data.Model',
-		fields: [
-			{name: 'fs_kode_karyawan', type: 'string'},
-			{name: 'fs_jabatan', type: 'string'},
-			{name: 'fs_nama_karyawan', type: 'string'}
-		]
-	});
-
 	Ext.define('DataGridUser', {
 		extend: 'Ext.data.Model',
 		fields: [
@@ -60,31 +51,6 @@ Ext.onReady(function() {
 	});
 
 	// STORES
-	var grupKaryawan = Ext.create('Ext.data.Store', {
-		autoLoad: false,
-		model: 'DataGridKaryawan',
-		pageSize: 25,
-		proxy: {
-			actionMethods: {
-				read: 'POST'
-			},
-			reader: {
-				rootProperty: 'hasil',
-				totalProperty: 'total',
-				type: 'json'
-			},
-			type: 'ajax',
-			url: 'masteruser/gridkaryawan'
-		},
-		listeners: {
-			beforeload: function(store) {
-				Ext.apply(store.getProxy().extraParams, {
-					'fs_cari': Ext.getCmp('txtCari1').getValue()
-				});
-			}
-		}
-	});
-
 	var grupUser = Ext.create('Ext.data.Store', {
 		autoLoad: true,
 		model: 'DataGridUser',
@@ -181,100 +147,6 @@ Ext.onReady(function() {
 		}
 	});
 
-	// POPUP SETUP USER
-	var winGrid1 = Ext.create('Ext.grid.Panel',{
-		anchor: '100%',
-		autoDestroy: true,
-		height: 450,
-		width: 550,
-		sortableColumns: false,
-		store: grupKaryawan,
-		columns: [
-			{xtype: 'rownumberer', width: 45},
-			{text: "Kode", dataIndex: 'fs_kode_karyawan', menuDisabled: true, hidden: true},
-			{text: "Nama Karyawan", dataIndex: 'fs_nama_karyawan', menuDisabled: true, flex: 2},
-			{text: "Jabatan", dataIndex: 'fs_nama_jabatan', menuDisabled: true, flex: 1.5}
-		],
-		tbar: [{
-			flex: 1,
-			layout: 'anchor',
-			xtype: 'container',
-			items: [{
-				anchor: '98%',
-				emptyText: 'Nama Karyawan',
-				id: 'txtCari1',
-				name: 'txtCari1',
-				xtype: 'textfield'
-			}]
-		},{
-			flex: 0.2,
-			layout: 'anchor',
-			xtype: 'container',
-			items: [{
-				anchor: '100%',
-				text: 'Search',
-				xtype: 'button',
-				handler: function() {
-					grupKaryawan.load();
-				}
-			}]
-		},{
-			flex: 0.5,
-			layout: 'anchor',
-			xtype: 'container',
-			items: []
-		}],
-		bbar: Ext.create('Ext.PagingToolbar', {
-			displayInfo: true,
-			pageSize: 25,
-			plugins: Ext.create('Ext.ux.ProgressBarPager', {}),
-			store: grupKaryawan,
-			items:[
-				'-', {
-				text: 'Exit',
-				handler: function() {
-					winCari1.hide();
-				}
-			}]
-		}),
-		listeners: {
-			itemdblclick: function(grid, record) {
-				Ext.getCmp('txtKode').setValue(record.get('fs_kode_karyawan'));
-				Ext.getCmp('cboKaryawan').setValue(record.get('fs_nama_karyawan'));
-
-				winCari1.hide();
-			}
-		},
-		viewConfig: {
-			getRowClass: function() {
-				return 'rowwrap';
-			},
-			markDirty: false
-		}
-	});
-
-	var winCari1 = Ext.create('Ext.window.Window', {
-		border: false,
-		closable: false,
-		draggable: true,
-		frame: false,
-		layout: 'fit',
-		plain: true,
-		resizable: false,
-		title: 'Searching...',
-		items: [
-			winGrid1
-		],
-		listeners: {
-			beforehide: function() {
-				vMask.hide();
-			},
-			beforeshow: function() {
-				grupKaryawan.load();
-				vMask.show();
-			}
-		}
-	});
 
 	// POPUP SETUP LEVEL
 	var winGrid2 = Ext.create('Ext.grid.Panel',{
@@ -350,11 +222,6 @@ Ext.onReady(function() {
 			xtype: 'rownumberer',
 			width: 25
 		},{
-			text: 'Kode',
-			dataIndex: 'fs_kode_karyawan',
-			menuDisabled: true,
-			hidden: true
-		},{
 			text: 'Username',
 			dataIndex: 'fs_username',
 			menuDisabled: true,
@@ -364,16 +231,6 @@ Ext.onReady(function() {
 			dataIndex: 'fs_level_user',
 			menuDisabled: true,
 			flex: 1
-		},{
-			text: 'Nama Karyawan',
-			dataIndex: 'fs_nama_karyawan',
-			menuDisabled: true,
-			flex: 2
-		},{
-			text: 'Jabatan',
-			dataIndex: 'fs_nama_jabatan',
-			menuDisabled: true,
-			width: 90
 		}],
 		bbar: Ext.create('Ext.PagingToolbar', {
 			displayInfo: true,
@@ -387,7 +244,7 @@ Ext.onReady(function() {
 			xtype: 'container',
 			items: [{
 				anchor: '98%',
-				emptyText: 'Nama Karyawan / Nama User',
+				emptyText: 'Nama User',
 				id: 'txtCari2',
 				name: 'txtCari2',
 				xtype: 'textfield'
@@ -412,8 +269,6 @@ Ext.onReady(function() {
 		}],
 		listeners: {
 			itemdblclick: function(grid, record) {
-				Ext.getCmp('txtKode').setValue(record.get('fs_kode_karyawan'));
-				Ext.getCmp('cboKaryawan').setValue(record.get('fs_nama_karyawan'));
 				Ext.getCmp('txtUser').setValue(record.get('fs_username'));
 				Ext.getCmp('cboLevel1').setValue(record.get('fs_level_user'));
 			}
@@ -1185,40 +1040,6 @@ Ext.onReady(function() {
 	});
 
 	// COMPONENT TAB SETUP USER
-	var cboKaryawan = {
-		afterLabelTextTpl: required,
-		allowBlank: false,
-		anchor: '98%',
-		emptyText: 'Nama Karyawan',
-		fieldLabel: 'Karyawan',
-		editable: false,
-		id: 'cboKaryawan',
-		name: 'cboKaryawan',
-		xtype: 'textfield',
-		triggers: {
-			reset: {
-				cls: 'x-form-clear-trigger',
-				handler: function(field) {
-					field.setValue('');
-				}
-			},
-			cari: {
-				cls: 'x-form-search-trigger',
-				handler: function() {
-					winCari1.show();
-					winCari1.center();
-				}
-			}
-		}
-	};
-
-	var txtKode = {
-		id: 'txtKode',
-		name: 'txtKode',
-		xtype: 'textfield',
-		hidden: true
-	};
-
 	var cboLevel1 = {
 		afterLabelTextTpl: required,
 		allowBlank: false,
@@ -1337,8 +1158,6 @@ Ext.onReady(function() {
 
 	// FUNCTION TAB USER
 	function fnResetUser() {
-		Ext.getCmp('cboKaryawan').setValue('');
-		Ext.getCmp('txtKode').setValue('');
 		Ext.getCmp('cboLevel1').setValue('');
 		Ext.getCmp('txtUser').setValue('');
 		Ext.getCmp('txtPass').setValue('');
@@ -1355,7 +1174,6 @@ Ext.onReady(function() {
 				method: 'POST',
 				url: 'masteruser/ceksaveuser',
 				params: {
-					'fs_kode_karyawan': Ext.getCmp('txtKode').getValue(),
 					'fs_username': Ext.getCmp('txtUser').getValue(),
 					'fs_password': Ext.getCmp('txtPass').getValue(),
 					'fs_confpass': Ext.getCmp('txtConf').getValue()
@@ -1409,7 +1227,6 @@ Ext.onReady(function() {
 			method: 'POST',
 			url: 'masteruser/saveuser',
 			params: {
-				'fs_kode_karyawan': Ext.getCmp('txtKode').getValue(),
 				'fs_username': Ext.getCmp('txtUser').getValue(),
 				'fs_password': Ext.getCmp('txtPass').getValue(),
 				'fs_level_user': Ext.getCmp('cboLevel1').getValue()
@@ -1421,7 +1238,7 @@ Ext.onReady(function() {
 					closable: false,
 					icon: Ext.MessageBox.INFO,
 					msg: xtext.hasil,
-					title: 'DENTIST'
+					title: 'PROJECTS'
 				});
 
 				// RESET
@@ -1438,7 +1255,7 @@ Ext.onReady(function() {
 					closable: false,
 					icon: Ext.MessageBox.INFO,
 					msg: 'Saving Failed, Connection Failed!!',
-					title: 'DENTIST'
+					title: 'PROJECTS'
 				});
 				fnMaskHide();
 			}
@@ -1472,7 +1289,7 @@ Ext.onReady(function() {
 							closable: false,
 							icon: Ext.MessageBox.INFO,
 							msg: xtext.hasil,
-							title: 'DENTIST'
+							title: 'PROJECTS'
 						});
 					} else {
 						Ext.MessageBox.show({
@@ -1480,7 +1297,7 @@ Ext.onReady(function() {
 							closable: false,
 							icon: Ext.MessageBox.QUESTION,
 							msg: xtext.hasil,
-							title: 'MFAS',
+							title: 'PROJECTS',
 							fn: function(btn) {
 								if (btn == 'yes') {
 									fnSaveLevel();
@@ -1496,7 +1313,7 @@ Ext.onReady(function() {
 						closable: false,
 						icon: Ext.MessageBox.INFO,
 						msg: 'Simpan Gagal, Koneksi Gagal',
-						title: 'DENTIST'
+						title: 'PROJECTS'
 					});
 					fnMaskHide();
 				}
@@ -1535,7 +1352,7 @@ Ext.onReady(function() {
 					closable: false,
 					icon: Ext.MessageBox.INFO,
 					msg: xtext.hasil,
-					title: 'DENTIST'
+					title: 'PROJECTS'
 				});
 
 				// RESET
@@ -1548,7 +1365,7 @@ Ext.onReady(function() {
 					closable: false,
 					icon: Ext.MessageBox.INFO,
 					msg: 'Saving Failed, Connection Failed!!',
-					title: 'DENTIST'
+					title: 'PROJECTS'
 				});
 				fnMaskHide();
 			}
@@ -1597,8 +1414,6 @@ Ext.onReady(function() {
 								title: 'Form Setup User',
 								xtype: 'fieldset',
 								items: [
-									cboKaryawan,
-									txtKode,
 									cboLevel1,
 									txtUser,
 									txtPass,

@@ -26,7 +26,7 @@ Ext.onReady(function() {
 	var xmonth = Ext.Date.format(new Date(), 'F Y');
 
 	// STORES
-	var grupDay = Ext.create('Ext.data.Store', {
+	var grupDone = Ext.create('Ext.data.Store', {
 		autoLoad: true,
 		fields: ['name', 'value'],
 		proxy: {
@@ -39,11 +39,11 @@ Ext.onReady(function() {
 				type: 'json'
 			},
 			type: 'ajax',
-			url: 'dashboard/daily'
+			url: 'dashboard/done'
 		}
 	});
 
-	var grupMonth = Ext.create('Ext.data.Store', {
+	var grupProgress = Ext.create('Ext.data.Store', {
 		autoLoad: true,
 		fields: ['name', 'value'],
 		proxy: {
@@ -56,11 +56,11 @@ Ext.onReady(function() {
 				type: 'json'
 			},
 			type: 'ajax',
-			url: 'dashboard/monthly'
+			url: 'dashboard/progress'
 		}
 	});
 
-	var grupPercent = Ext.create('Ext.data.Store', {
+	var grupProblem = Ext.create('Ext.data.Store', {
 		autoLoad: true,
 		fields: ['name', 'value'],
 		proxy: {
@@ -73,99 +73,49 @@ Ext.onReady(function() {
 				type: 'json'
 			},
 			type: 'ajax',
-			url: 'dashboard/percent'
+			url: 'dashboard/problem'
 		}
 	});
+
+	var grupFailed = Ext.create('Ext.data.Store', {
+		autoLoad: true,
+		fields: ['name', 'value'],
+		proxy: {
+			actionMethods: {
+				read: 'POST'
+			},
+			reader: {
+				rootProperty: 'hasil',
+				totalProperty: 'total',
+				type: 'json'
+			},
+			type: 'ajax',
+			url: 'dashboard/failed'
+		}
+	});
+
 
 	// CHARTS
-	var chartDay = Ext.create({
+	var chartDone = Ext.create({
 		xtype: 'cartesian',
 		width: '100%',
-		height: 220,
-		store: grupDay,
-		axes: [{
-			type: 'numeric',
-			position: 'left',
-			fields: ['value'],
-			title: {
-				text: 'TOTAL PEMASUKAN',
-				fontSize: 11
-			},
-			grid: true,
-			minimum: 0,
-			renderer: Ext.util.Format.numberRenderer('0,000,000')
-		},{
-			type: 'category',
-			position: 'bottom',
-			fields: ['name'],
-			title: {
-				text: xmonth,
-				fontSize: 12
-			}
-		}],
-		series: [{
-			type: 'line',
-			style: {
-				stroke: '#30BDA7',
-				lineWidth: 2
-			},
-			xField: 'name',
-			yField: 'value',
-			marker: {
-				type: 'path',
-				path: ['M', - 4, 0, 0, 4, 4, 0, 0, - 4, 'Z'],
-				stroke: '#30BDA7',
-				lineWidth: 2,
-				fill: 'white'
-			}
-		},{
-			type: 'line',
-			fill: true,
-			style: {
-				fill: '#96D4C6',
-				fillOpacity: .6,
-				stroke: '#0A3F50',
-				strokeOpacity: .6,
-			},
-			xField: 'name',
-			yField: 'value',
-			marker: {
-				type: 'circle',
-				radius: 4,
-				lineWidth: 2,
-				fill: 'white'
-			},
-			tooltip: {
-				trackMouse: true,
-				style: 'background: #fff',
-				renderer: function(storeItem, item) {
-					this.setHtml('TANGGAL ' + storeItem.get('name') + ' : ' + Ext.util.Format.number(storeItem.get(item.series.getYField()), '0,000,000') + ' IDR');
-				}
-			}
-		}]
-	});		
-
-	var chartMonth = Ext.create({
-		xtype: 'cartesian',
-		width: '100%',
-		height: 220,
+		height: 240,
 		plugins: {
 			ptype: 'chartitemevents',
 			moveEvents: true
 		},
-		store: grupMonth,
+		store: grupDone,
 		axes: [{
 			type: 'numeric3d',
 			position: 'left',
 			fields: 'value',
-			majorTickSteps: 2,
-			renderer: Ext.util.Format.numberRenderer('0,000,000')
+			majorTickSteps: 2
 		},{
 			type: 'category3d',
 			position: 'bottom',
 			title: {
-				text: '',
-				fontSize: 11
+				text: 'DONE',
+				fontSize: 13
 			},
 			fields: 'name'
 		}],
@@ -181,55 +131,130 @@ Ext.onReady(function() {
 				trackMouse: true,
 				style: 'background: #fff',
 				renderer: function(storeItem, item) {
-					this.setHtml(storeItem.get('name') + ': ' + Ext.util.Format.number(storeItem.get(item.series.getYField()), '0,000,000') + ' IDR');
+					this.setHtml(storeItem.get('name') + ': ' + storeItem.get(item.series.getYField()) + ' PROJECT');
 				}
 			}
 		}
 	});
 
-	var chartPercent = Ext.create({
-		xtype: 'polar',
+	var chartProgress = Ext.create({
+		xtype: 'cartesian',
 		width: '100%',
-		height: 220,
-		theme: 'green',
-		interactions: ['rotate', 'itemhighlight'],
-		store: grupPercent,
+		height: 240,
+		store: grupProgress,
+		axes: [{
+			type: 'numeric3d',
+			position: 'left',
+			fields: 'value',
+			majorTickSteps: 2
+		},{
+			type: 'category3d',
+			position: 'bottom',
+			title: {
+				text: 'PROGRESS',
+				fontSize: 13
+			},
+			fields: 'name'
+		}],
 		series: {
-			type: 'pie',
-			highlight: true,
-			angleField: 'value',
-			label: {
-	  			field: 'name',
-	  			display: 'inside',
-	  			fontSize: 10
-	  		},
-	  		tooltip: {
-	            trackMouse: true,
-	            style: 'background: #fff',
-	                renderer: function(storeItem, item) {
-	                    this.setHtml(storeItem.get('name') + ': ' + storeItem.get('value') + ' IDR');
-	                }
-	        },
-	  		xField: 'number',
-	  		donut: 30
+			type: 'bar3d',
+			subStyle: {
+				fill: ['#2255AE'],
+				stroke: '#1B4184'
+			},
+			xField: 'name',
+			yField: 'value',
+			tooltip: {
+				trackMouse: true,
+				style: 'background: #fff',
+				renderer: function(storeItem, item) {
+					this.setHtml(storeItem.get('name') + ': ' + storeItem.get(item.series.getYField()) + ' PROJECT');
+				}
+			}
 		}
 	});
-	
+
+	var chartProblem = Ext.create({
+		xtype: 'cartesian',
+		width: '100%',
+		height: 240,
+		store: grupProblem,
+		axes: [{
+			type: 'numeric3d',
+			position: 'left',
+			fields: 'value',
+			majorTickSteps: 2
+		},{
+			type: 'category3d',
+			position: 'bottom',
+			title: {
+				text: 'PROBLEM',
+				fontSize: 13
+			},
+			fields: 'name'
+		}],
+		series: {
+			type: 'bar3d',
+			subStyle: {
+				fill: ['#E0E41E'],
+				stroke: '#C3C621'
+			},
+			xField: 'name',
+			yField: 'value',
+			tooltip: {
+				trackMouse: true,
+				style: 'background: #fff',
+				renderer: function(storeItem, item) {
+					this.setHtml(storeItem.get('name') + ': ' + storeItem.get(item.series.getYField()) + ' PROJECT');
+				}
+			}
+		}
+	});
+
+	var chartFailed = Ext.create({
+		xtype: 'cartesian',
+		width: '100%',
+		height: 240,
+		store: grupFailed,
+		axes: [{
+			type: 'numeric3d',
+			position: 'left',
+			fields: 'value',
+			majorTickSteps: 2
+		},{
+			type: 'category3d',
+			position: 'bottom',
+			title: {
+				text: 'FAILED',
+				fontSize: 13
+			},
+			fields: 'name'
+		}],
+		series: {
+			type: 'bar3d',
+			subStyle: {
+				fill: ['#EF1515'],
+				stroke: '#E41E1E'
+			},
+			xField: 'name',
+			yField: 'value',
+			tooltip: {
+				trackMouse: true,
+				style: 'background: #fff',
+				renderer: function(storeItem, item) {
+					this.setHtml(storeItem.get('name') + ': ' + storeItem.get(item.series.getYField()) + ' PROJECT');
+				}
+			}
+		}
+	});
+
 	var frmDashboard = Ext.create('Ext.form.Panel', {
+		width: 990,
 		border: false,
 		frame: true,
 		region: 'center',
 		title: 'Dashboard',
-		width: 930,
 		items: [{
-			anchor: '99%',
-			style: 'padding: 5px;',
-			title: 'Pemasukan Per Hari',
-			xtype: 'fieldset',
-			items: [
-				chartDay
-			]
-		},{
 			anchor: '100%',
 			style: 'padding: 1px;',
 			border: false,
@@ -239,29 +264,60 @@ Ext.onReady(function() {
 				layout: 'hbox',
 				xtype: 'container',
 				items: [{
-					flex: 2.5,
+					flex: 2.1,
 					layout: 'anchor',
 					xtype: 'container',
 					items: [{
-						anchor: '98%',
-						style: 'padding: 4px;',
-						title: 'Pemasukan Per Bulan',
+						anchor: '99%',
+						style: 'padding: 5px;',
+						title: 'DONE',
 						xtype: 'fieldset',
 						items: [
-							chartMonth
+							chartDone
 						]
 					}]
 				},{
-					flex: 1,
+					flex: 2.1,
 					layout: 'anchor',
 					xtype: 'container',
 					items: [{
-						anchor: '98%',
-						style: 'padding: 4px;',
-						title: 'Persentasi',
+						anchor: '99%',
+						style: 'padding: 5px;',
+						title: 'PROGRESS',
 						xtype: 'fieldset',
 						items: [
-							chartPercent
+							chartProgress
+						]
+					}]
+				}]
+			},{
+				anchor: '100%',
+				layout: 'hbox',
+				xtype: 'container',
+				items: [{
+					flex: 2.1,
+					layout: 'anchor',
+					xtype: 'container',
+					items: [{
+						anchor: '99%',
+						style: 'padding: 5px;',
+						title: 'PROBLEM',
+						xtype: 'fieldset',
+						items: [
+							chartProblem
+						]
+					}]
+				},{
+					flex: 2.1,
+					layout: 'anchor',
+					xtype: 'container',
+					items: [{
+						anchor: '99%',
+						style: 'padding: 5px;',
+						title: 'FAILED',
+						xtype: 'fieldset',
+						items: [
+							chartFailed
 						]
 					}]
 				}]
