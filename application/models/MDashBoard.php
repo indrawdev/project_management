@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class MDashBoard extends CI_Model {
+class MDashboard extends CI_Model {
 
 	public function __construct() 
 	{
